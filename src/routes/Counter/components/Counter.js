@@ -14,7 +14,12 @@ export class Counter extends React.Component {
   }
 
   fetchMoreApplications() {
-    
+
+    // stop fetching if data list if full
+    if (this.props.data.applications.data.length === this.props.data.applications.item_count){
+      return;
+    }
+
     return this.props.data.fetchMore({
       variables: {
         pageNumber: (this.props.data.applications.data.length / 5) + 1
@@ -23,9 +28,9 @@ export class Counter extends React.Component {
       // combine old & new result
       updateQuery: (previousResult, {fetchMoreResult}) => {
 
-        if (previousResult.applications.item_count == previousResult.applications.data.length) {
-          return;
-        }
+        // if (previousResult.applications.item_count == previousResult.applications.data.length) {
+        //   return;
+        // }
 
         const newApplications = fetchMoreResult.data.applications.data;
         const item_count = fetchMoreResult.data.applications.item_count;
