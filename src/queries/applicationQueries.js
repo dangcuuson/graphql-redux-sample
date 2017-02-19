@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-export const getApplicationQuery = gql`
+export const getSingleApplicationQuery = gql`
     query getSingleApplication($reference_id: String!)
       {
         application(reference_id: $reference_id){
@@ -53,4 +53,23 @@ export const getApplicationQuery = gql`
           Applicant_Months_At_Address
         }
       }
+`
+
+export const getApplicationListQuery = gql`
+  query getApplicationList($itemPerPage: Int, $pageNumber: Int)
+  {
+    applications(app_type: SmartAlarms, item_per_page: $itemPerPage, page_number: $pageNumber, batching: false) {
+      data{
+        reference_id,
+        ...on SmartAlarmsApplication{
+          contact_info {
+            contact_full_name
+          },
+          dealer
+        }
+      }
+
+      item_count
+    }
+  }
 `

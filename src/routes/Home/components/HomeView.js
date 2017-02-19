@@ -3,23 +3,19 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
 import { withApollo, graphql, compose } from 'react-apollo';
-import { getApplicationQuery } from 'queries/applicationQueries';
+import { getSingleApplicationQuery } from 'queries/applicationQueries';
 
 export class HomeView extends React.Component {
   constructor(props) {
     super(props)
 
-    this.onButtonClick = this.onButtonClick.bind(this);
+    this.onButtonClick = this.onFetchButtonClick.bind(this);
+    this.state = {};
   }
 
-  onButtonClick() {
-    //this.props.actions.setRefId("SMAL170218134715")
-    // this.props.data.variables = {
-    //   reference_id: "SMAL170218134715"
-    // }
-
+  onFetchButtonClick() {
     this.props.data.refetch({
-      reference_id: "SMAL170218134715"
+      reference_id: this.state.reference_id
     })
   }
 
@@ -37,7 +33,13 @@ export class HomeView extends React.Component {
     return (
       <div className='home'>
 
-        <button onClick={() => this.onButtonClick()}>Test</button>
+
+        <input type="text" onChange={(event) => {
+            this.setState({
+              reference_id: event.target.value
+            })
+        }} />
+        <button onClick={() => this.onFetchButtonClick()}>Fetch</button>
 
         <h4>Contact Info</h4>
         <div>Full name: {contact_info.contact_full_name}</div>
@@ -69,11 +71,12 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 export default compose(
-  graphql(getApplicationQuery, {
+  graphql(getSingleApplicationQuery, {
+    name: "data", // data is the default name - put it here to make it more explicit & easy to understand
     options: (props) => {
       return {
         variables: {
-          reference_id: props.location.reference_id || "SMAL170212235524"
+          reference_id: props.location.query.reference_id || "SMAL170212235524"
         }
       }
     }
