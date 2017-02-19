@@ -1,15 +1,90 @@
 import React from 'react'
-import DuckImage from '../assets/Duck.jpg'
-import './HomeView.scss'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
-export const HomeView = () => (
-  <div>
-    <h4>Welcome!</h4>
-    <img
-      alt='This is a duck, because Redux!'
-      className='duck'
-      src={DuckImage} />
-  </div>
-)
+import { withApollo, graphql, compose } from 'react-apollo';
+import { getApplicationQuery } from 'queries/applicationQueries';
 
-export default HomeView
+export class HomeView extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.onButtonClick = this.onButtonClick.bind(this);
+  }
+
+  onButtonClick() {
+    //this.props.actions.setRefId("SMAL170218134715")
+    // this.props.data.variables = {
+    //   reference_id: "SMAL170218134715"
+    // }
+
+    this.props.data.refetch({
+      reference_id: "SMAL170218134715"
+    })
+  }
+
+  render() {
+    console.log("RENDER", this.props);
+    if (this.props.data.loading) {
+      return <div>Loading</div>
+    }
+
+    if (this.props.data.error) {
+      return <div>Error</div>
+    }
+
+    const {contact_info} = this.props.data.application
+    return (
+      <div className='home'>
+
+        <button onClick={() => this.onButtonClick()}>Test</button>
+
+        <h4>Contact Info</h4>
+        <div>Full name: {contact_info.contact_full_name}</div>
+        <div>Mobile: {contact_info.contact_mobile}</div>
+        <div>Email: {contact_info.contact_email}</div>
+        <div>Address: {contact_info.contact_address}</div>
+      </div>
+    )
+  }
+}
+
+const mapStateToProps = (state, { params }) => {
+  return {
+    test: state.test
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  const actions = {
+    setRefId: (ref_id) => ({
+      type: "SET_REFERENCE_ID",
+      reference_id: ref_id
+    })
+
+  }
+  return {
+    actions: bindActionCreators(actions, dispatch)
+  }
+}
+
+export default compose(
+  graphql(getApplicationQuery, {
+    options: (props) => {
+      return {
+        variables: {
+          reference_id: props.location.reference_id || "SMAL170212235524"
+        }
+      }
+    }
+  }),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
+)(HomeView)
+
+// export default connect(
+//   mapStateToProps,
+//   mapDispatchToProps
+// )(withApollo(HomeView))
